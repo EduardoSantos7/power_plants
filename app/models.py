@@ -1,6 +1,7 @@
 import os
 
 import pandas as pd
+from sqlalchemy import desc
 
 from app import db
 
@@ -29,8 +30,10 @@ class PowerPlant(db.Model):
     def get_n_power_plants(number_plants, state_abbreviation=None):
         if state_abbreviation:
             return PowerPlant.query.filter(
-                PowerPlant.state_abbreviation == state_abbreviation).limit(number_plants).all()
-        return PowerPlant.query.limit(number_plants).all()
+                PowerPlant.state_abbreviation == state_abbreviation).order_by(
+                    desc(PowerPlant.annual_net_generation)).limit(number_plants).all()
+        return PowerPlant.query.order_by(
+                desc(PowerPlant.annual_net_generation)).limit(number_plants).all()
 
     def delete(self):
         db.session.delete(self)
