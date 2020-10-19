@@ -1,9 +1,6 @@
 import os
 
 import pandas as pd
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
 
 from app import db
 
@@ -11,7 +8,7 @@ from app import db
 class PowerPlant(db.Model):
     """This class represents the power plant table."""
 
-    __tablename__ = 'powerplant'
+    __tablename__ = 'powerplants'
 
     facility_code = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
@@ -19,7 +16,6 @@ class PowerPlant(db.Model):
     annual_net_generation = db.Column(db.Integer, index=True)
 
     def __init__(self, name, facility_code, state_abbreviation, annual_net_generation):
-        """initialize with name."""
         self.name = name
         self.facility_code = facility_code
         self.state_abbreviation = state_abbreviation
@@ -30,7 +26,10 @@ class PowerPlant(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_n_power_plants(number_plants):
+    def get_n_power_plants(number_plants, state_abbreviation=None):
+        if state_abbreviation:
+            return PowerPlant.query.filter(
+                PowerPlant.state_abbreviation == state_abbreviation).limit(number_plants).all()
         return PowerPlant.query.limit(number_plants).all()
 
     def delete(self):

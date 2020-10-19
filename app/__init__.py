@@ -22,7 +22,7 @@ def create_app(config_name):
         PowerPlant.populate_table()
 
     @app.route('/power_plants/', methods=['GET'])
-    def bucketlists():
+    def power_plants():
         schema = UrlQuerySchema()
 
         errors = schema.validate(request.args)
@@ -32,7 +32,8 @@ def create_app(config_name):
 
         args = request.args
 
-        power_plants = PowerPlant.get_n_power_plants(args.get('number_plants'))
+        power_plants = PowerPlant.get_n_power_plants(
+            args.get('number_plants'), state_abbreviation=args.get('state_abbreviation'))
 
         results = []
 
