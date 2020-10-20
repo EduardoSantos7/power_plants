@@ -33,7 +33,8 @@ def create_app(config_name):
         args = request.args
 
         power_plants = PowerPlant.get_n_power_plants(
-            args.get('number_plants'), state_abbreviation=args.get('state_abbreviation'))
+            number_plants=args.get('number_plants'),
+            state_abbreviation=args.get('state_abbreviation'))
 
         results = []
 

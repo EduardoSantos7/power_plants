@@ -27,11 +27,18 @@ class PowerPlant(db.Model):
         db.session.commit()
 
     @staticmethod
-    def get_n_power_plants(number_plants, state_abbreviation=None):
-        if state_abbreviation:
+    def get_n_power_plants(number_plants=None, state_abbreviation=None):
+        if not number_plants and not state_abbreviation:
+            return PowerPlant.query.order_by(
+                desc(PowerPlant.annual_net_generation)).all()
+        if number_plants and state_abbreviation:
             return PowerPlant.query.filter(
                 PowerPlant.state_abbreviation == state_abbreviation).order_by(
                     desc(PowerPlant.annual_net_generation)).limit(number_plants).all()
+        if state_abbreviation:
+            return PowerPlant.query.filter(
+                PowerPlant.state_abbreviation == state_abbreviation).order_by(
+                    desc(PowerPlant.annual_net_generation)).all()
         return PowerPlant.query.order_by(
                 desc(PowerPlant.annual_net_generation)).limit(number_plants).all()
 
