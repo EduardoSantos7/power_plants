@@ -3,8 +3,9 @@ import os
 import json
 
 from sqlalchemy.orm import query
-from app import create_app, db
-from app.models import PowerPlant
+from app import create_app, db, model_exists
+from app.models.PowerPlant import PowerPlant
+from app.models.State import State
 
 
 class PowerPlantTestCase(unittest.TestCase):
@@ -19,8 +20,12 @@ class PowerPlantTestCase(unittest.TestCase):
 
         # binds the app to the current context
         with self.app.app_context():
-            # create all tables
-            db.create_all()
+            if not model_exists(PowerPlant):
+                db.create_all(bind=PowerPlant.__bind_key__)
+                PowerPlant.populate_table()
+            if not model_exists(State):
+                db.create_all(bind=State.__bind_key__)
+                State.populate_table()
 
     def test_api_can_get_n_power_plants(self):
         """Test API can get N power plants (GET request)."""
@@ -59,6 +64,14 @@ class PowerPlantTestCase(unittest.TestCase):
             for power_plant in power_plants:
                 self.assertEqual(self.test_state, power_plant.get('state_abbreviation'))
 
+    def test_api_can_get_all_plants(self):
+        """Test API can get all the power plants (GET request)."""
+        for n in self.number_power_plants:
+            response = self.client().get(f'/power_plants/')
+            power_plants = json.loads(response.data)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(10964, len(power_plants))
+
     def test_api_can_get_state_data(self):
         """Test API can get all the power plants of a given state (GET request)."""
         for n in self.number_power_plants:
@@ -66,16 +79,26 @@ class PowerPlantTestCase(unittest.TestCase):
                 f'/states/', query_string={
                     'state_abbreviation': self.test_state
                 })
-            state = json.loads(response.data)
-            self.assertEqual(response.status_code, 200)
-            self.assertEqual(195_212_859.6, state.total_production)
+            states = json.loads(response.data)
+            self.assertEqual(200, response.status_code)
+            self.assertEqual(len(states), 1)
+            self.assertEqual(self.test_state, states[0].get('state_abbreviation'))
+            self.assertEqual(195_212_860, states[0].get('annual_net_generation'))
 
-    # def tearDown(self):
-    #     """teardown all initialized variables."""
-    #     with self.app.app_context():
-    #         # drop all tables
-    #         db.session.remove()
-    #         db.drop_all()
+    def test_api_can_get_all_states_data(self):
+        """Test API can get all the power plants of a given state (GET request)."""
+        for n in self.number_power_plants:
+            response = self.client().get(f'/states/')
+            states = json.loads(response.data)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(51, len(states))
+
+    def tearDown(self):
+        """teardown all initialized variables."""
+        with self.app.app_context():
+            # drop all tables
+            db.session.remove()
+            db.drop_all()
 
 
 # Make the tests conveniently executable
