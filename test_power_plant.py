@@ -59,6 +59,17 @@ class PowerPlantTestCase(unittest.TestCase):
             for power_plant in power_plants:
                 self.assertEqual(self.test_state, power_plant.get('state_abbreviation'))
 
+    def test_api_can_get_state_data(self):
+        """Test API can get all the power plants of a given state (GET request)."""
+        for n in self.number_power_plants:
+            response = self.client().get(
+                f'/states/', query_string={
+                    'state_abbreviation': self.test_state
+                })
+            state = json.loads(response.data)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(195_212_859.6, state.total_production)
+
     # def tearDown(self):
     #     """teardown all initialized variables."""
     #     with self.app.app_context():
