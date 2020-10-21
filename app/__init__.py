@@ -18,7 +18,8 @@ def model_exists(model_class):
 
 
 def create_app(config_name):
-    from app.models import PowerPlant
+    from app.models.PowerPlant import PowerPlant
+    from app.models.State import State
     app = FlaskAPI(__name__, instance_relative_config=True)
     app.config.from_object(app_config[config_name])
     app.config.from_pyfile('config.py')
@@ -27,8 +28,11 @@ def create_app(config_name):
 
     with app.app_context():
         if not model_exists(PowerPlant):
-            db.create_all()
+            db.create_all(bind=PowerPlant.__bind_key__)
             PowerPlant.populate_table()
+        if not model_exists(State):
+            db.create_all(bind=State.__bind_key__)
+            State.populate_table()
 
     @app.route('/power_plants/', methods=['GET'])
     def power_plants():
@@ -43,7 +47,7 @@ def create_app(config_name):
 
         power_plants = PowerPlant.get_n_power_plants(
             number_plants=args.get('number_plants'),
-            state_abbreviation=args.get('state_abbreviation').upper())
+            state_abbreviation=args.get('state_abbreviation', '').upper())
 
         results = []
 
@@ -53,6 +57,32 @@ def create_app(config_name):
                 'name': power_plant.name,
                 'state_abbreviation': power_plant.state_abbreviation,
                 'annual_net_generation': power_plant.annual_net_generation
+            }
+            results.append(obj)
+
+        response = jsonify(results)
+        response.status_code = 200
+        return response
+
+    @app.route('/states/', methods=['GET'])
+    def states():
+        schema = UrlQuerySchema()
+
+        errors = schema.validate(request.args)
+
+        if errors:
+            abort(400, str(errors))
+
+        args = request.args
+
+        states = State.get_state_production(
+            state_abbreviation=args.get('state_abbreviation', '').upper())
+        results = []
+
+        for state in states:
+            obj = {
+                'state_abbreviation': state.state_abbreviation,
+                'annual_net_generation': state.annual_net_generation
             }
             results.append(obj)
 
