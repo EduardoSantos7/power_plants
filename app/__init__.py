@@ -1,3 +1,4 @@
+import sqlalchemy
 from flask_api import FlaskAPI
 from flask_sqlalchemy import SQLAlchemy
 from flask import request, jsonify, abort
@@ -11,6 +12,11 @@ from app.schemas import UrlQuerySchema
 db = SQLAlchemy()
 
 
+def model_exists(model_class):
+    engine = db.get_engine(bind=model_class.__bind_key__)
+    return model_class.metadata.tables[model_class.__tablename__].exists(engine)
+
+
 def create_app(config_name):
     from app.models import PowerPlant
     app = FlaskAPI(__name__, instance_relative_config=True)
@@ -18,8 +24,11 @@ def create_app(config_name):
     app.config.from_pyfile('config.py')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     db.init_app(app)
+
     with app.app_context():
-        PowerPlant.populate_table()
+        if not model_exists(PowerPlant):
+            db.create_all()
+            PowerPlant.populate_table()
 
     @app.route('/power_plants/', methods=['GET'])
     def power_plants():
@@ -34,7 +43,7 @@ def create_app(config_name):
 
         power_plants = PowerPlant.get_n_power_plants(
             number_plants=args.get('number_plants'),
-            state_abbreviation=args.get('state_abbreviation'))
+            state_abbreviation=args.get('state_abbreviation').upper())
 
         results = []
 

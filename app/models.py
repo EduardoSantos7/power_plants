@@ -10,6 +10,7 @@ class PowerPlant(db.Model):
     """This class represents the power plant table."""
 
     __tablename__ = 'powerplants'
+    __bind_key__ = 'powerplants'
 
     facility_code = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(255))
