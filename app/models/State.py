@@ -25,6 +25,16 @@ class State(db.Model):
 
     @staticmethod
     def get_state_production(state_abbreviation=None):
+        """If a state is provided then return a list with that state else return
+        a list will the data of all the states.
+
+        Args:
+            state_abbreviation (String, optional): abbreviation of the state (ej. CA -> California).
+                                                    Defaults to None.
+
+        Returns:
+            [List]: List of states.
+        """
         if state_abbreviation:
             return [State.query.filter(State.state_abbreviation == state_abbreviation).first()]
 
@@ -37,6 +47,9 @@ class State(db.Model):
 
     @staticmethod
     def populate_table():
+        """If the table is empty then populate it.
+        """
+
         first_state = State.query.first()
 
         # If the table is populated then return

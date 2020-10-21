@@ -73,7 +73,7 @@ class PowerPlantTestCase(unittest.TestCase):
             self.assertEqual(10964, len(power_plants))
 
     def test_api_can_get_state_data(self):
-        """Test API can get all the power plants of a given state (GET request)."""
+        """Test API can get the state data of a given state (GET request)."""
         for n in self.number_power_plants:
             response = self.client().get(
                 f'/states/', query_string={
@@ -86,7 +86,7 @@ class PowerPlantTestCase(unittest.TestCase):
             self.assertEqual(195_212_860, states[0].get('annual_net_generation'))
 
     def test_api_can_get_all_states_data(self):
-        """Test API can get all the power plants of a given state (GET request)."""
+        """Test API can get all the states (GET request)."""
         for n in self.number_power_plants:
             response = self.client().get(f'/states/')
             states = json.loads(response.data)

@@ -29,6 +29,18 @@ class PowerPlant(db.Model):
 
     @staticmethod
     def get_n_power_plants(number_plants=None, state_abbreviation=None):
+        """ Different behavior depending of the [number_plants] and [state_abbreviation] provided.
+        If one argument is not provided then "all" is assume. (All the states or all the plants)
+
+        Args:
+            number_plants (int, optional): The number of plants to return. Defaults to None.
+            state_abbreviation (string, optional): The state from which the plants will be selected.
+                                                    Defaults to None.
+
+        Returns:
+            List: List of power plants
+        """
+
         if not number_plants and not state_abbreviation:
             return PowerPlant.query.order_by(
                 desc(PowerPlant.annual_net_generation)).all()
@@ -49,6 +61,9 @@ class PowerPlant(db.Model):
 
     @staticmethod
     def populate_table():
+        """If the table is empty then populate it.
+        """
+
         first_power_plant = PowerPlant.query.first()
 
         # If the table is populated then return
