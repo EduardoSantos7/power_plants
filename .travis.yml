@@ -16,6 +16,6 @@ addons:
 env:
     global:
         - PGPORT=5432
-        - DB_NAME=test_power_plants_db
+        - DB_NAME=power_plants_db
         - DB_USER=default
         - DB_PASSWORD=default
