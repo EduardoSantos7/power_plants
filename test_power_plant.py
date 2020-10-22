@@ -2,10 +2,7 @@ import unittest
 import os
 import json
 
-from sqlalchemy.orm import query
-from app import create_app, db, model_exists
-from app.models.PowerPlant import PowerPlant
-from app.models.State import State
+from app import create_app, db
 
 
 class PowerPlantTestCase(unittest.TestCase):
@@ -13,19 +10,11 @@ class PowerPlantTestCase(unittest.TestCase):
 
     def setUp(self):
         """Define test variables and initialize app."""
+        print("ENTTREEE")
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.number_power_plants = [i for i in range(1, 100)]
         self.test_state = "CA"
-
-        # binds the app to the current context
-        with self.app.app_context():
-            if not model_exists(PowerPlant):
-                db.create_all(bind=PowerPlant.__bind_key__)
-                PowerPlant.populate_table()
-            if not model_exists(State):
-                db.create_all(bind=State.__bind_key__)
-                State.populate_table()
 
     def test_api_can_get_n_power_plants(self):
         """Test API can get N power plants (GET request)."""
@@ -101,6 +90,6 @@ class PowerPlantTestCase(unittest.TestCase):
             db.drop_all()
 
 
-# Make the tests conveniently executable
+
 if __name__ == "__main__":
     unittest.main()
