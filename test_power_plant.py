@@ -10,7 +10,6 @@ class PowerPlantTestCase(unittest.TestCase):
 
     def setUp(self):
         """Define test variables and initialize app."""
-        print("ENTTREEE")
         self.app = create_app(config_name="testing")
         self.client = self.app.test_client
         self.number_power_plants = [i for i in range(1, 100)]
